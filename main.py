@@ -9,6 +9,7 @@ from PyQt5.QtGui import * # QFont, QFontMetrics, QPainter,QPixmap, QMouseEvent
 from PyQt5.QtWidgets import * #QApplication, QLabel, QWidget
 
 global_dict = {}
+tem_dict = {}
 
 class ScrollTextWindow(QWidget):
     """ 滚动字幕 """
