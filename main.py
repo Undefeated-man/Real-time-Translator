@@ -3,7 +3,7 @@ from time import sleep
 import threading 
 import inspect
 import ctypes
-import random
+from test import text_translation as translator
 
 from PyQt5.QtCore import * # Qt, QTimer, pyqtSlot
 from PyQt5.QtGui import * # QFont, QFontMetrics, QPainter,QPixmap, QMouseEvent
@@ -38,6 +38,7 @@ class ScrollTextWindow(QWidget):
         self.timer.start(self.timeStep*1000)
         self.counter = 0
         self.ori = ori
+        self.trans = trans
 
     def initWidget(self):
         """ 初始化界面 """
@@ -69,7 +70,7 @@ class ScrollTextWindow(QWidget):
         self.isSongNameTooLong = self.songNameWidth > 250
         self.isSongerNameTooLong = self.songerNameWidth > 250
         # 设置窗口的宽度
-        self.setFixedWidth(min(maxWidth, 1200))
+        self.setFixedWidth(1200)
 
     def updateIndex(self):
         """ 更新下标 """
@@ -92,6 +93,7 @@ class ScrollTextWindow(QWidget):
     def paintEvent(self, e):
         """ 绘制文本 """
         global ori
+        global trans
         # super().paintEvent(e)
         painter = QPainter(self)
         painter.setPen(Qt.white)
@@ -108,11 +110,9 @@ class ScrollTextWindow(QWidget):
             # self.counter += 1
         # else:
             # painter.drawText(0, 54, self.songName)
-        if self.ori == "":
+        if len(self.ori)==0 or len(ori)!=0:
             self.ori = ori
-            painter.drawText(0, 54, self.ori)
-        else:
-            painter.drawText(0, 54, ori)
+        painter.drawText(0, 82, self.ori)
         # if self.counter < 30:
             # if self.counter == 10:
                 # self.songName = "Fuck You"
@@ -128,13 +128,16 @@ class ScrollTextWindow(QWidget):
         # 绘制歌手名  
         painter.setFont(QFont('Microsoft YaHei', 12, 500))
         painter.begin(self)
-        if self.isSongerNameTooLong:
-            painter.drawText(self.spacing * self.isSongerNameAllOut - self.moveStep *
-                             self.songerCurrentIndex, 82, self.songerName)
-            painter.drawText(self.songerNameWidth - self.moveStep * self.songerCurrentIndex +
-                             self.spacing * (1 + self.isSongerNameAllOut), 82, self.songerName)
-        else:
-            painter.drawText(0, 82, self.songerName)
+        # if self.isSongerNameTooLong:
+            # painter.drawText(self.spacing * self.isSongerNameAllOut - self.moveStep *
+                             # self.songerCurrentIndex, 82, self.songerName)
+            # painter.drawText(self.songerNameWidth - self.moveStep * self.songerCurrentIndex +
+                             # self.spacing * (1 + self.isSongerNameAllOut), 82, self.songerName)
+        # else:
+            # painter.drawText(0, 82, self.songerName)
+        if len(self.trans)==0 or len(trans)!=0:
+            self.trans = trans
+        painter.drawText(0, 54, self.trans)
         painter.end()
         # painter.CompositionMode_Clear()
         # painter.drawText(0, 100, "mamamamama")
@@ -255,12 +258,11 @@ class WorkThread(QThread, QObject):
         while True:
             global ori
             global trans
-            print(ori)
-            ori = str(random.randint(200,225))
-            trans = str(random.randint(150,200))
+            pretext = input("Voice in: ")
+            trans, ori = translator(pretext)
             self.update_date.emit(ori)
             self.update_date.emit(trans)
-            sleep(1)
+            print(ori)
 
 if __name__ == "__main__":
     workThread = WorkThread()
