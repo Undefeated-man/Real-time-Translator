@@ -112,6 +112,8 @@ class ScrollTextWindow(QWidget):
                              self.spacing * (1 + self.isSongerNameAllOut), 82, self.songerName)
         else:
             painter.drawText(0, 82, self.songerName)
+        self.initWidget()
+        print("1")
     
         
 
