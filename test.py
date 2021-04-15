@@ -5,11 +5,14 @@ import re
 import sys
 import threading
 import time
+import pyautogui
 
 from google_trans_new import google_translator
 
 translator = google_translator()
 translate_client = google_translator()
+
+#global t_text
 
 def text_translation(input_text):
 
@@ -27,9 +30,18 @@ def gen_dic(orig_text,trans_text):
     dic[orig_text] = trans_text
     return dic
 
+'''def test_update_dict(dic,t_text):
+    if t_text == "" or " "
+        return False
+    if t_text == dic.keys():
+        return False
+    return True'''
+
 def main():
     while(True):
         pre_text = input("voice in: ")
+        #pyautogui.press('enter', presses=1, interval=0.0)
+        #t_test = pre_text
         a,b = text_translation(pre_text)
         if len(a)==0 or len(b)==0:
             continue

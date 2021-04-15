@@ -136,8 +136,11 @@ class ScrollTextWindow(QWidget):
         else:
             painter.drawText(0, 82, self.songerName)
         painter.end()
-        #painter.CompositionMode_Clear()
-        #painter.drawText(0, 100, "mamamamama")
+        # painter.CompositionMode_Clear()
+        # painter.drawText(0, 100, "mamamamama")
+        # self.initWidget()
+        # print("1")
+    
         
 
 class SongInfoCard(QWidget):
@@ -302,3 +305,4 @@ if __name__ == "__main__":
         # print("changed")
     
     # sleep(30)
+
