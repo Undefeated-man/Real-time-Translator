@@ -1,10 +1,5 @@
 from __future__ import division
 
-import numpy as np
-import re
-import sys
-import threading
-import time
 
 from google_trans_new import google_translator
 

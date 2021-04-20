@@ -1,8 +1,9 @@
 import sys
 from time import sleep
 import threading 
-import inspect
-import ctypes
+#import inspect
+#import ctypes
+import pyautogui
 from test import text_translation as translator
 
 from PyQt5.QtCore import * # Qt, QTimer, pyqtSlot
@@ -22,7 +23,7 @@ class ScrollTextWindow(QWidget):
         # 实例化定时器
         self.timer = QTimer(self)
         # 设置刷新时间和移动距离
-        self.timeStep = 1
+        self.timeStep = 20
         self.moveStep = 5
         self.songCurrentIndex = 0
         self.songerCurrentIndex = 0
@@ -35,7 +36,7 @@ class ScrollTextWindow(QWidget):
         self.initWidget()
         # 背景设为透明
         # self.setAttribute(Qt.WA_TranslucentBackground)
-        self.timer.start(self.timeStep*1000)
+        self.timer.start(self.timeStep)
         self.counter = 0
         self.ori = ori
         self.trans = trans
@@ -57,18 +58,18 @@ class ScrollTextWindow(QWidget):
         """ 计算文本的总宽度 """
         songFontMetrics = QFontMetrics(QFont('Microsoft YaHei', 14, 400))
         self.songNameWidth = sum([songFontMetrics.width(i)
-                                  for i in self.songName])
+                                  for i in ori])
         songerFontMetrics = QFontMetrics(QFont('Microsoft YaHei', 12, 500))
         self.songerNameWidth = sum(
-            [songerFontMetrics.width(i) for i in self.songerName])
+            [songerFontMetrics.width(i) for i in trans])
 
     def adjustWindowWidth(self):
         """ 根据字符串长度调整窗口宽度 """
         self.getTextWidth()
         maxWidth = max(self.songNameWidth*3, self.songerNameWidth*3)
         # 判断是否有字符串宽度超过窗口的最大宽度
-        self.isSongNameTooLong = self.songNameWidth > 250
-        self.isSongerNameTooLong = self.songerNameWidth > 250
+        self.isSongNameTooLong = self.songNameWidth > 1200
+        self.isSongerNameTooLong = self.songerNameWidth > 1200
         # 设置窗口的宽度
         self.setFixedWidth(1200)
 
@@ -99,20 +100,20 @@ class ScrollTextWindow(QWidget):
         painter.setPen(Qt.white)
         # 绘制歌名
         painter.setFont(QFont('Microsoft YaHei', 14))
-        # if self.isSongNameTooLong and self.counter<100:
-            # # 实际上绘制了两段完整的字符串
-            # # 从负的横坐标开始绘制第一段字符串
-            # painter.drawText(self.spacing * self.isSongNameAllOut - self.moveStep *
-                             # self.songCurrentIndex, 54, self.songName)
-            # # 绘制第二段字符串
-            # painter.drawText(self.songNameWidth - self.moveStep * self.songCurrentIndex +
-                             # self.spacing * (1 + self.isSongNameAllOut), 54, self.songName)
-            # self.counter += 1
-        # else:
-            # painter.drawText(0, 54, self.songName)
         if len(self.ori)==0 or len(ori)!=0:
             self.ori = ori
-        painter.drawText(0, 82, self.ori)
+        if self.isSongNameTooLong:
+            # 实际上绘制了两段完整的字符串
+            # 从负的横坐标开始绘制第一段字符串
+            painter.drawText(self.spacing * self.isSongNameAllOut - self.moveStep *
+                             self.songCurrentIndex, 82, self.ori)
+            # 绘制第二段字符串
+            painter.drawText(self.songNameWidth - self.moveStep * self.songCurrentIndex +
+                             self.spacing * (1 + self.isSongNameAllOut), 82, self.ori)
+        else:
+            painter.drawText(0, 82, self.ori)
+        
+        #painter.drawText(0, 82, self.ori)
         # if self.counter < 30:
             # if self.counter == 10:
                 # self.songName = "Fuck You"
@@ -128,16 +129,18 @@ class ScrollTextWindow(QWidget):
         # 绘制歌手名  
         painter.setFont(QFont('Microsoft YaHei', 12, 500))
         painter.begin(self)
-        # if self.isSongerNameTooLong:
-            # painter.drawText(self.spacing * self.isSongerNameAllOut - self.moveStep *
-                             # self.songerCurrentIndex, 82, self.songerName)
-            # painter.drawText(self.songerNameWidth - self.moveStep * self.songerCurrentIndex +
-                             # self.spacing * (1 + self.isSongerNameAllOut), 82, self.songerName)
-        # else:
-            # painter.drawText(0, 82, self.songerName)
+            
         if len(self.trans)==0 or len(trans)!=0:
             self.trans = trans
-        painter.drawText(0, 54, self.trans)
+        
+        if self.isSongerNameTooLong:
+            painter.drawText(self.spacing * self.isSongerNameAllOut - self.moveStep *
+                             self.songerCurrentIndex, 54, self.trans)
+            painter.drawText(self.songerNameWidth - self.moveStep * self.songerCurrentIndex +
+                             self.spacing * (1 + self.isSongerNameAllOut), 54, self.trans)
+        else:
+            painter.drawText(0, 54, self.trans)
+        #painter.drawText(0, 54, self.trans)
         painter.end()
         # painter.CompositionMode_Clear()
         # painter.drawText(0, 100, "mamamamama")
@@ -164,13 +167,14 @@ class SongInfoCard(QWidget):
         # 背景设为透明
         # self.setAttribute(Qt.WA_TranslucentBackground)
         self.move(0, 0)
+        #self.setWindowFlags(Qt.WindowStaysOnTopHint)  # 窗体总在最前端
 
     def initWidget(self):
         """ 初始化小部件 """
         self.setFixedHeight(115)
         self.setFixedWidth(115 + 15 + self.scrollTextWindow.width() + 25)
         self.setAttribute(Qt.WA_StyledBackground)
-        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.scrollTextWindow.move(130, 0)
         self.albumPic.setPixmap(QPixmap(r'./OIP2.jfif').scaled(
                                 115, 115, Qt.KeepAspectRatio, Qt.SmoothTransformation))
@@ -204,6 +208,9 @@ class SongInfoCard(QWidget):
         最小化窗口
         """
         self.showMinimized()
+    
+    """def on_inTopCheckBox_clicked(self):
+        Dialog.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)"""
 
 class Subtitle:
     def __init__(self, content):
@@ -216,7 +223,6 @@ class Subtitle:
         self.demo.setStyleSheet('background:rgb(129,133,137)')
         self.demo.show()
         sys.exit(self.app.exec_())
-        self.create_dict()
     
     @pyqtSlot()
     def on_pushButton_clicked(self):
@@ -238,6 +244,8 @@ class Subtitle:
             global global_dict
             ori = str(i)
             sleep(1)
+    
+    
 
 def create_dict():
     global global_dict
@@ -264,19 +272,33 @@ class WorkThread(QThread, QObject):
             self.update_date.emit(trans)
             print(ori)
 
+class Enter_key(QThread):
+    def __init__(self):
+        while(1):
+            pyautogui.press('enter', presses=1, interval=2.0)
+
+def enter_key():
+    while(1):
+        pyautogui.press('enter', presses=1, interval=2.0)
+
 if __name__ == "__main__":
     workThread = WorkThread()
     workThread.start()
-    # threading.Thread(target = create_dict(), args=()).start()
+    
+    threading.Thread(target = enter_key, args=()).start()
+    
     app = QApplication(sys.argv)
-    songInfo = {
-        'songName': 'ハッピーでバッドな眠りは浅い', 'songer': '鎖那',
-        'album': [r'./OIP2.jfif']}
+    # songInfo = {
+        # 'songName': 'ハッピーでバッドな眠りは浅い', 'songer': '鎖那',
+        # 'album': [r'./OIP2.jfif']}
     # demo = SongInfoCard(songInfo)
     demo = SongInfoCard()
     demo.setStyleSheet('background:rgb(129,133,137)')
     #threading.Thread(target = demo.show(), args=()).start()
     demo.show()
+    
+    sys.exit(app.exec())
+    
     # for i in range(10):
         # sleep(0.8)
         # print(ori)
