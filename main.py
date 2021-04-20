@@ -1,8 +1,7 @@
 import sys
 from time import sleep
 import threading 
-#import inspect
-#import ctypes
+import appdirs
 import pyautogui
 from test import text_translation as translator
 
@@ -16,14 +15,14 @@ trans = ""
 class ScrollTextWindow(QWidget):
     """ 滚动字幕 """
 
-    def __init__(self, songName, songerName, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.songName = songName
-        self.songerName = songerName
+        self.ori = ori
+        self.trans = trans
         # 实例化定时器
         self.timer = QTimer(self)
         # 设置刷新时间和移动距离
-        self.timeStep = 20
+        self.timeStep = 200
         self.moveStep = 5
         self.songCurrentIndex = 0
         self.songerCurrentIndex = 0
@@ -35,11 +34,8 @@ class ScrollTextWindow(QWidget):
         # 初始化界面
         self.initWidget()
         # 背景设为透明
-        # self.setAttribute(Qt.WA_TranslucentBackground)
-        self.timer.start(self.timeStep)
-        self.counter = 0
-        self.ori = ori
-        self.trans = trans
+        #self.timer.start(self.timeStep)
+        
 
     def initWidget(self):
         """ 初始化界面 """
@@ -51,27 +47,27 @@ class ScrollTextWindow(QWidget):
         self.timer.setInterval(self.timeStep)
         self.timer.timeout.connect(self.updateIndex)
         # 只要有一个字符串宽度大于窗口宽度就开启滚动：
-        if self.isSongerNameTooLong or self.isSongNameTooLong:
-            self.timer.start()
+        #if self.isSongerNameTooLong or self.isSongNameTooLong:
+        self.timer.start()
 
     def getTextWidth(self):
         """ 计算文本的总宽度 """
         songFontMetrics = QFontMetrics(QFont('Microsoft YaHei', 14, 400))
         self.songNameWidth = sum([songFontMetrics.width(i)
-                                  for i in ori])
+                                  for i in self.ori])
         songerFontMetrics = QFontMetrics(QFont('Microsoft YaHei', 12, 500))
         self.songerNameWidth = sum(
-            [songerFontMetrics.width(i) for i in trans])
+            [songerFontMetrics.width(i) for i in self.trans])
 
     def adjustWindowWidth(self):
         """ 根据字符串长度调整窗口宽度 """
         self.getTextWidth()
-        maxWidth = max(self.songNameWidth*3, self.songerNameWidth*3)
+        maxWidth = max(self.songNameWidth*2, self.songerNameWidth*2)
         # 判断是否有字符串宽度超过窗口的最大宽度
-        self.isSongNameTooLong = self.songNameWidth > 1200
-        self.isSongerNameTooLong = self.songerNameWidth > 1200
+        self.isSongNameTooLong = self.songNameWidth > 1000
+        self.isSongerNameTooLong = self.songerNameWidth > 1000
         # 设置窗口的宽度
-        self.setFixedWidth(1200)
+        self.setFixedWidth(1600)
 
     def updateIndex(self):
         """ 更新下标 """
@@ -156,28 +152,27 @@ class SongInfoCard(QWidget):
         super().__init__(parent)
         # 保存信息
         #self.songInfo = songInfo
-        self.songName = "hello world"
-        self.songerName = "Vincent"
+        #self.songName = "hello world"
+        #self.songerName = "Vincent"
         # 实例化小部件
         self.albumPic = QLabel(self)
-        self.scrollTextWindow = ScrollTextWindow(
-            self.songName, self.songerName, self)
+        self.scrollTextWindow = ScrollTextWindow(self)
         # 初始化界面
         self.initWidget()
         # 背景设为透明
-        # self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setWindowOpacity(0.92)
+        #self.setAttribute(Qt.WA_TranslucentBackground)
         self.move(0, 0)
-        #self.setWindowFlags(Qt.WindowStaysOnTopHint)  # 窗体总在最前端
 
     def initWidget(self):
         """ 初始化小部件 """
         self.setFixedHeight(115)
         self.setFixedWidth(115 + 15 + self.scrollTextWindow.width() + 25)
         self.setAttribute(Qt.WA_StyledBackground)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-        self.scrollTextWindow.move(130, 0)
-        self.albumPic.setPixmap(QPixmap(r'./OIP2.jfif').scaled(
-                                115, 115, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)     # 无边框 + 窗体总在最前端
+        self.scrollTextWindow.move(50, 0)
+        #self.albumPic.setPixmap(QPixmap(r'./OIP2.jfif').scaled(
+        #                        115, 115, Qt.KeepAspectRatio, Qt.SmoothTransformation))
                                 
     def mousePressEvent(self, event):
         if event.button()==Qt.LeftButton:
@@ -299,34 +294,3 @@ if __name__ == "__main__":
     
     sys.exit(app.exec())
     
-    # for i in range(10):
-        # sleep(0.8)
-        # print(ori)
-        
-    # while 1:
-        # ori = input("Origin: ")
-        # global_dict[ori] = input("Translate")
-        # if tem_dict=={}:
-            # tem_dict = global_dict
-        # sleep(0.5)
-    
-    #demo.show()
-    # dic_res = {
-        # "Hi, how are you?": u"哈喽， 你最近过的怎么样?",
-        # "Tommy, are you there? What happen today?": u"汤米，在吗？今天发生了什么？"
-    # }
-    
-    # for i in ["Hi, how are you?", "Tommy, are you there? What happen today?"]:
-        # new_data = {
-                    # 'songName': i, 'songer': dic_res[i],
-                    # 'album': [r'./OIP2.jfif']
-                    # }
-        # m = threading.Thread(target = Subtitle, args=(new_data,), daemon=True)
-        # m.start()
-        
-        # print("prepare")
-        # sleep(10)
-        # print("changed")
-    
-    # sleep(30)
-
