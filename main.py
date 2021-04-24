@@ -3,7 +3,7 @@ from time import sleep
 import threading 
 import appdirs
 import pyautogui
-from test import text_translation as translator
+from translate import text_translation as translator
 
 from PyQt5.QtCore import * # Qt, QTimer, pyqtSlot
 from PyQt5.QtGui import * # QFont, QFontMetrics, QPainter,QPixmap, QMouseEvent
@@ -52,10 +52,10 @@ class ScrollTextWindow(QWidget):
 
     def getTextWidth(self):
         """ 计算文本的总宽度 """
-        songFontMetrics = QFontMetrics(QFont('Microsoft YaHei', 14, 400))
+        songFontMetrics = QFontMetrics(QFont('Microsoft YaHei', 16, 400))
         self.songNameWidth = sum([songFontMetrics.width(i)
                                   for i in self.ori])
-        songerFontMetrics = QFontMetrics(QFont('Microsoft YaHei', 12, 500))
+        songerFontMetrics = QFontMetrics(QFont('Microsoft YaHei', 14, 500))
         self.songerNameWidth = sum(
             [songerFontMetrics.width(i) for i in self.trans])
 
@@ -95,19 +95,19 @@ class ScrollTextWindow(QWidget):
         painter = QPainter(self)
         painter.setPen(Qt.white)
         # 绘制歌名
-        painter.setFont(QFont('Microsoft YaHei', 14))
+        painter.setFont(QFont('Microsoft YaHei', 16))
         if len(self.ori)==0 or len(ori)!=0:
             self.ori = ori
         if self.isSongNameTooLong:
             # 实际上绘制了两段完整的字符串
             # 从负的横坐标开始绘制第一段字符串
             painter.drawText(self.spacing * self.isSongNameAllOut - self.moveStep *
-                             self.songCurrentIndex, 82, self.ori)
+                             self.songCurrentIndex, 90, self.ori)
             # 绘制第二段字符串
             painter.drawText(self.songNameWidth - self.moveStep * self.songCurrentIndex +
-                             self.spacing * (1 + self.isSongNameAllOut), 82, self.ori)
+                             self.spacing * (1 + self.isSongNameAllOut), 90, self.ori)
         else:
-            painter.drawText(0, 82, self.ori)
+            painter.drawText(0, 90, self.ori)
         
         #painter.drawText(0, 82, self.ori)
         # if self.counter < 30:
@@ -123,7 +123,7 @@ class ScrollTextWindow(QWidget):
             
 
         # 绘制歌手名  
-        painter.setFont(QFont('Microsoft YaHei', 12, 500))
+        painter.setFont(QFont('Microsoft YaHei', 14, 500))
         painter.begin(self)
             
         if len(self.trans)==0 or len(trans)!=0:
@@ -131,11 +131,11 @@ class ScrollTextWindow(QWidget):
         
         if self.isSongerNameTooLong:
             painter.drawText(self.spacing * self.isSongerNameAllOut - self.moveStep *
-                             self.songerCurrentIndex, 54, self.trans)
+                             self.songerCurrentIndex, 48, self.trans)
             painter.drawText(self.songerNameWidth - self.moveStep * self.songerCurrentIndex +
-                             self.spacing * (1 + self.isSongerNameAllOut), 54, self.trans)
+                             self.spacing * (1 + self.isSongerNameAllOut), 48, self.trans)
         else:
-            painter.drawText(0, 54, self.trans)
+            painter.drawText(0, 48, self.trans)
         #painter.drawText(0, 54, self.trans)
         painter.end()
         # painter.CompositionMode_Clear()
